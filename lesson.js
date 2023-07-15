@@ -40,4 +40,4 @@ const a = getFaqs({
     topicId: 1,
     status: StatusCode.published,
 });
-a.then((res) => console.log(res.status));
+a.then((res) => console.log(res[0].status));
