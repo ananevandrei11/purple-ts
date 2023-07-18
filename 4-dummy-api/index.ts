@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-enum GENDER {
-  male = 'male',
-  female = 'female',
+enum Gender {
+  Male = 'male',
+  Female = 'female',
 }
 
 type BloodGroup =
@@ -13,8 +13,6 @@ type BloodGroup =
   | 'O+'
   | 'O-'
   | 'AB-';
-
-type GenderType = GENDER.male | GENDER.female;
 
 interface Address {
   address: string;
@@ -53,7 +51,7 @@ interface User {
   lastName: string;
   maidenName: string;
   age: number;
-  gender: GenderType;
+  gender: Gender;
   email: string;
   phone: string;
   username: string;
