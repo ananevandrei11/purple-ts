@@ -233,7 +233,7 @@ function userToAdmin(user: UserType): AdminType {
 }
 
 const adminVaisya = userToAdmin(userVaisya);
-*/
+
 
 interface User {
   name: string;
@@ -283,3 +283,4 @@ function setRoleZero(user: User | Admin) {
     throw new Error('User not Admin');
   }
 }
+*/
