@@ -1,3 +1,5 @@
+"use strict";
+/*
 interface IPayment {
   sum: number;
   from: number;
@@ -61,3 +63,4 @@ function getIdFromData(
     throw new Error(res.data.errorMessage);
   }
 }
+*/ 

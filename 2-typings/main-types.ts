@@ -1,3 +1,4 @@
+/*
 enum NUMBERS_DECLINES {
   TEN = 10,
   ONE_HUNDRED = 100,
@@ -100,7 +101,7 @@ function makeOrdinal(words: string) {
 function replaceWithOrdinalVariant(numberWord: string) {
   return ordinalLessThanThirteen[numberWord];
 }
-
+*/
 /**
  * Converts an integer into words.
  * If number is decimal, the decimals will be removed.
@@ -109,6 +110,7 @@ function replaceWithOrdinalVariant(numberWord: string) {
  * @param {boolean} [asOrdinal] - Deprecated, use toWordsOrdinal() instead!
  * @returns {string}
  */
+/*
 function toWords(
   number: string | number,
   asOrdinal: boolean,
@@ -217,3 +219,4 @@ function generateWords(
 }
 
 export default toWords;
+*/
