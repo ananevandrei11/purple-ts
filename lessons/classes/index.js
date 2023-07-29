@@ -402,7 +402,7 @@ class UserController extends Controller {
 const cc = new UserController();
 class Logger {
     printDate(d) {
-        this.log(d);
+        this.log(d.toString());
     }
 }
 class UserLogger extends Logger {
