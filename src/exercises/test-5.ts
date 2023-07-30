@@ -46,7 +46,7 @@ type DeliveryOptions = HomeDelivery | ShopDelivery;
 
 class Cart {
   private products: Product[] = [];
-  private delivery: DeliveryOptions;
+  private delivery: DeliveryOptions | undefined;
 
   public addProduct(p: Product): void {
     this.products.push(p);

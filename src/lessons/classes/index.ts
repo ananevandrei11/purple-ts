@@ -1,4 +1,3 @@
-"use strict";
 /*
 class User {
   name: string;
@@ -384,35 +383,46 @@ if (userB.isAdmin()) {
 } else {
   console.log(userB);
 }
-*/
+
 // --------------------------
 // Abstract Class
-class Controller {
-    handleWithLogs(req) {
-        console.log('start');
-        this.handle(req);
-        console.log('end');
-    }
+abstract class Controller {
+  abstract handle(req: any): void;
+
+  handleWithLogs(req: any) {
+    console.log('start');
+    this.handle(req);
+    console.log('end');
+  }
 }
+
 class UserController extends Controller {
-    handle(req) {
-        console.log(req);
-    }
+  handle(req: any): void {
+    console.log(req);
+  }
 }
+
 const cc = new UserController();
-class Logger {
-    printDate(d) {
-        this.log(d.toString());
-    }
+abstract class Logger {
+  abstract log(m: string): void;
+
+  printDate(d: Date): void {
+    this.log(d.toString());
+  }
 }
+
 class UserLogger extends Logger {
-    log(m) {
-        console.log(m);
-    }
-    logWithDate(d) {
-        this.printDate(d);
-        this.log('message');
-    }
+  log(m: string): void {
+    console.log(m);
+  }
+
+  logWithDate(d: Date) {
+    this.printDate(d);
+    this.log('message');
+  }
 }
+
 const bb = new UserLogger();
 bb.logWithDate(new Date());
+
+*/

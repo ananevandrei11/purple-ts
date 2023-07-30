@@ -1,17 +1,17 @@
+type ObjectMap = {
+  [key: string]: { [key: string]: string };
+};
+
 class MapTable {
-  private _objectMap: {
-    [key: string]: { [key: string]: string };
-  };
+  private _objectMap: ObjectMap = {};
   private _regexPlus: RegExp = /^\+/;
   private _regexMinus: RegExp = /^-/;
-  private _hashMinus = '0';
-  private _hashPlus = '1';
+  private _hashMinus: string = '0';
+  private _hashPlus: string = '1';
 
-  constructor() {
-    this._objectMap = {};
-  }
+  constructor() {}
 
-  private _hashBucket(value: string) {
+  private _hashBucket(value: string): string {
     const valueNegative = this._regexMinus.test(value);
     const valuePositive = this._regexPlus.test(value);
 
@@ -22,13 +22,20 @@ class MapTable {
     return valueNegative ? this._hashMinus : this._hashPlus;
   }
 
-  get() {
+  get(): ObjectMap {
     return this._objectMap;
   }
 
-  set({ key, value }: { key: string; value: string }) {
+  set({
+    key,
+    value,
+  }: {
+    key: string;
+    value: string;
+  }): void {
     const hashBucket = this._hashBucket(value);
     if (this._objectMap.hasOwnProperty(hashBucket)) {
+      //@ts-ignore
       this._objectMap[hashBucket][key] = value;
     } else {
       this._objectMap[hashBucket] = {
