@@ -1,21 +1,28 @@
-const obj: Record<string, number> = {
-  a: 1,
-  b: 2,
-};
-
-type SwapObj<T> = Record<string, keyof T>;
+type Entries<T> = [keyof T, T[keyof T]][];
 
 function swapKeysAndValues<T extends object>(
   obj: T,
-): SwapObj<T> {
-  const entries = Object.entries(obj);
+): { [K in keyof T as T[K]]: K } {
+  const entries = Object.entries(obj) as Entries<T>;
 
-  let swapObj: SwapObj<T> = {};
+  const swapObj = {} as any;
   entries.forEach((i) => {
-    const key = JSON.stringify(i[1]);
-    swapObj[key] = i[0] as keyof T;
+    const keyFromValue =
+      typeof i[1] === 'string'
+        ? i[1]
+        : JSON.stringify(i[1]);
+    swapObj[keyFromValue] = i[0];
   });
   return swapObj;
 }
 
-swapKeysAndValues<typeof obj>(obj);
+const swapedObject = swapKeysAndValues({
+  name: 'Ivan',
+  surname: 'Urlan',
+} as const);
+const swapedObject2 = swapKeysAndValues({
+  a: 1,
+  b: 2,
+} as const);
+console.log(swapedObject);
+console.log(swapedObject2);
