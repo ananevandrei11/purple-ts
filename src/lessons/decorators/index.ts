@@ -70,7 +70,9 @@ import 'reflect-metadata';
   }
 
   // after set number
-  function threeUserAdvanced<T extends { new (...args: any[]): {} }>(constructor: T) {
+  function threeUserAdvanced<T extends { new (...args: any[]): {} }>(
+    constructor: T,
+  ) {
     return class extends constructor {
       users = 3;
     };
@@ -247,7 +249,11 @@ import 'reflect-metadata';
 
   // Accessors
   function Log() {
-    return (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+    return (
+      target: Object,
+      propertyKey: string | symbol,
+      descriptor: PropertyDescriptor,
+    ) => {
       const set = descriptor.set;
       descriptor.set = (...args: any) => {
         console.log(args);
@@ -263,6 +269,7 @@ import 'reflect-metadata';
 })();
 
 // ---6-7 Decorators Parameters / Metadata ---
+/*
 (function () {
   interface IUserService {
     getUsersInDB(): number;
@@ -282,18 +289,31 @@ import 'reflect-metadata';
   }
   const POSITIVE_METADATA_KEY = Symbol('POSITIVE_METADATA_KEY');
   function Positive() {
-    return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+    return (
+      target: Object,
+      propertyKey: string | symbol,
+      parameterIndex: number,
+    ) => {
       console.log(Reflect.getOwnMetadata('design:type', target, propertyKey));
-      console.log(Reflect.getOwnMetadata('design:paramtypes', target, propertyKey));
-      console.log(Reflect.getOwnMetadata('design:returntype', target, propertyKey));
-      let existParams: number[] = Reflect.getOwnMetadata(Symbol('POSITIVE_METADATA_KEY'), target, propertyKey) || [];
+      console.log(
+        Reflect.getOwnMetadata('design:paramtypes', target, propertyKey),
+      );
+      console.log(
+        Reflect.getOwnMetadata('design:returntype', target, propertyKey),
+      );
+      let existParams: number[] =
+        Reflect.getOwnMetadata(
+          Symbol('POSITIVE_METADATA_KEY'),
+          target,
+          propertyKey,
+        ) || [];
       existParams.push(parameterIndex);
-      Reflect.defineMetadata(Symbol('POSITIVE_METADATA_KEY'), existParams, target, propertyKey);
-      /*
-      console.log(target);
-      console.log(propertyKey);
-      console.log(parameterIndex);
-      */
+      Reflect.defineMetadata(
+        Symbol('POSITIVE_METADATA_KEY'),
+        existParams,
+        target,
+        propertyKey,
+      );
     };
   }
 
@@ -305,7 +325,12 @@ import 'reflect-metadata';
     ) => {
       let method = descriptor.value;
       descriptor.value = function (...args: any) {
-        let positiveParams: number[] = Reflect.getOwnMetadata(Symbol('POSITIVE_METADATA_KEY'), target, propertyKey) || [];
+        let positiveParams: number[] =
+          Reflect.getOwnMetadata(
+            Symbol('POSITIVE_METADATA_KEY'),
+            target,
+            propertyKey,
+          ) || [];
         if (positiveParams) {
           console.log(positiveParams);
           for (let index of positiveParams) {
@@ -323,3 +348,4 @@ import 'reflect-metadata';
   console.log('6', new UserService().setUsersInDB(0));
   console.log('6', userService.setUsersInDB(-1));
 })();
+*/
