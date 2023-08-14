@@ -3,5 +3,5 @@ declare module 'really-relaxed-json' {
 }
 
 declare module 'sort-by' {
-  export function sortBy<T>(...args: (string | number | symbol)[]): T;
+  export function sortBy<T>(...args: string[]): T;
 }
