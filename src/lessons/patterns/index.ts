@@ -1,4 +1,4 @@
-// Singelton
+// SINGELTON
 (function () {
   class MyMap {
     private static instance: MyMap;
@@ -38,7 +38,7 @@
   new Service2().getKeys(1);
 })();
 
-// Prototype
+// PROTOTYPE
 (function () {
   interface Prototype<T> {
     clone(): T;
@@ -63,7 +63,7 @@
   console.log(user1);
 })();
 
-// Builder
+// BUILDER
 (function () {
   enum ImageFormat {
     PNG = 'png',
