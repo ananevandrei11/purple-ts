@@ -2,6 +2,7 @@ type Entries<T> = [keyof T, T[keyof T]][];
 
 function swapKeysAndValues<T extends object>(
   obj: T,
+  // @ts-ignore
 ): { [K in keyof T as T[K]]: K } {
   const entries = Object.entries(obj) as Entries<T>;
 
