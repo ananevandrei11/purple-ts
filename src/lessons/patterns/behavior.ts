@@ -1,71 +1,78 @@
-// BRIDGE
+// Chain Of Command цепочка вызовов
 (function () {
-  interface IProvider {
-    sendMessage(message: string): void;
-    connect(config: unknown): void;
-    disconnect(): void;
+  interface IMiddleWare {
+    next(mid: IMiddleWare): IMiddleWare;
+    handle(req: any): any;
   }
 
-  class TelegramProvider implements IProvider {
-    sendMessage(message: string): void {
-      console.log(message);
+  abstract class AbstractMiddleWare implements IMiddleWare {
+    private nextMiddleware: IMiddleWare | null = null;
+    next(mid: IMiddleWare): IMiddleWare {
+      this.nextMiddleware = mid;
+      return mid;
     }
-    connect(config: string): void {
-      console.log(config);
-    }
-    disconnect(): void {
-      console.log('Disconnect Telegram');
-    }
-  }
-
-  class WhatsUpProvider implements IProvider {
-    sendMessage(message: string): void {
-      console.log(message);
-    }
-    connect(config: string): void {
-      console.log(config);
-    }
-    disconnect(): void {
-      console.log('Disconnect WhatsUp');
+    handle(req: any) {
+      if (this.nextMiddleware) {
+        return this.nextMiddleware.handle(req);
+      }
+      return;
     }
   }
 
-  class NotificationSender {
-    constructor(private provider: IProvider) {}
+  class AuthMiddleware extends AbstractMiddleWare {
+    override handle(req: any) {
+      console.log('Auth');
 
-    send() {
-      this.provider.connect('connect');
-      this.provider.sendMessage('message');
-      this.provider.disconnect();
+      if (req.userId === 1) {
+        return super.handle(req);
+      }
+      return { error: 'Error: Not Auth' };
     }
   }
 
-  class DelayNotificationSender extends NotificationSender {
-    constructor(provider: IProvider) {
-      super(provider);
+  class ValidateMiddleware extends AbstractMiddleWare {
+    override handle(req: any) {
+      console.log('Validate');
+
+      if (req.body) {
+        return super.handle(req);
+      }
+      return { error: 'Error Validate Body' };
     }
-    sendDelayed(ms: number) {
-      const that = this;
-      setTimeout(function () {
-        that.send();
-      }, ms);
+  }
+
+  class ControllerMiddleware extends AbstractMiddleWare {
+    override handle(req: any) {
+      console.log('Controller');
+      return { succes: req };
     }
   }
 
   /*
-  const sender = new NotificationSender(new TelegramProvider());
-  sender.send();
-
-  const sender2 = new DelayNotificationSender(new WhatsUpProvider);
-  sender2.sendDelayed(1000);
+  const controller = new ControllerMiddleware();
+  const valid = new ValidateMiddleware();
+  const auth = new AuthMiddleware();
+  auth.next(valid).next(controller);
+  console.log(auth.handle({ userId: 1, body: 'I am body' }));
   */
 })();
 
-// FASADE
+// Mediator
 (function () {
-  class Notify {
-    send(template: string, to: string) {
-      console.log(`${template} ${to}`);
+  interface IMediator {
+    notify(sender: string, event: string): void;
+  }
+
+  abstract class Mediated {
+    mediator: IMediator;
+    setMediator(mediator: IMediator) {
+      this.mediator = mediator;
+    }
+  }
+
+  class Notifactions {
+    send() {
+      console.log('Notifactions');
     }
   }
 
@@ -75,68 +82,113 @@
     }
   }
 
-  class Template {
-    private templates = [{ name: 'other', template: '<h1>Template</h1>' }];
-
-    getByName(name: string) {
-      return this.templates.find((t) => t.name === name);
+  class EventHandler extends Mediated {
+    myEvent() {
+      this.mediator.notify('EventHandler', 'nyEvent');
     }
   }
 
-  class NotificationFacade {
-    private notify: Notify;
-    private logger: Log;
-    private template: Template;
-
-    constructor() {
-      this.notify = new Notify();
-      this.logger = new Log();
-      this.template = new Template();
-    }
-
-    send(to: string, templateName: string) {
-      const data = this.template.getByName(templateName);
-      if (!data) {
-        this.logger.log('Not found');
-        return;
+  class NotificationMediator implements IMediator {
+    constructor(
+      public notifcations: Notifactions,
+      public log: Log,
+      public handler: EventHandler,
+    ) {}
+    notify(_: string, event: string): void {
+      switch (event) {
+        case 'nyEvent':
+          this.notifcations.send();
+          this.log.log('Log: Sended');
+          break;
       }
-      this.notify.send(data.template, to);
-      this.logger.log('Done');
     }
   }
+  /*
+  const handler = new EventHandler();
+  const logger = new Log();
+  const notifcations = new Notifactions();
 
-  const service = new NotificationFacade();
-  // service.send('a@a.ru', 'other');
+  const m = new NotificationMediator(notifcations, logger, handler);
+  handler.setMediator(m);
+  handler.myEvent();
+  */
 })();
 
-// ADAPTER
+// COMMAND
 (function () {
-  class KVDatabase {
-    private db: Map<string, string> = new Map();
-
-    save(k: string, v: string) {
-      this.db.set(k, v);
+  class User {
+    constructor(public userId: number) {
+      this.userId = userId;
     }
   }
 
-  class PersistentDB {
-    savePersistent(data: Object) {
-      console.log(data);
+  class UserService {
+    saveUser(user: User) {
+      console.log(`saveUser ${user.userId}`);
+    }
+    deleteUser(userId: number) {
+      console.log(`deleteUser ${userId}`);
     }
   }
 
-  class PersistentDBAdapter extends KVDatabase {
-    constructor(public database: PersistentDB) {
-      super();
+  class CommandHistory {
+    public commands: Command[] = [];
+    push(command: Command) {
+      this.commands.push(command);
     }
 
-    override save(k: string, v: string): void {
-      this.database.savePersistent({ k: v });
+    remove(command: Command) {
+      this.commands = this.commands.filter(
+        (c) => c.commandId !== command.commandId,
+      );
     }
   }
 
-  function run(base: KVDatabase) {
-    base.save('k', 'v');
+  abstract class Command {
+    public commandId: number;
+    abstract execute(): void;
+    constructor(public history: CommandHistory) {
+      this.commandId = Math.random();
+    }
   }
-  run(new PersistentDBAdapter(new PersistentDB));
+
+  class AddUserCommand extends Command {
+    constructor(
+      histroy: CommandHistory,
+      private user: User,
+      private receiver: UserService,
+    ) {
+      super(histroy);
+    }
+
+    execute(): void {
+      this.receiver.saveUser(this.user);
+      this.history.push(this);
+    }
+
+    undo(): void {
+      this.receiver.deleteUser(this.user.userId);
+      this.history.remove(this);
+    }
+  }
+
+  class Controller {
+    receiver: UserService;
+    history: CommandHistory = new CommandHistory();
+    addReceiver(receiver: UserService) {
+        this.receiver = receiver;
+    }
+    run() {
+      const user = new User(1);
+      const command = new AddUserCommand(this.history, user, this.receiver);
+      command.execute();
+      console.log(command.history);
+      command.undo();
+      console.log(command.history);
+    }
+  }
+
+  const controller = new Controller();
+  controller.addReceiver(new UserService());
+  controller.run();
 })();
