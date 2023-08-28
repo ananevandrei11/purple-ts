@@ -176,7 +176,7 @@
     receiver: UserService;
     history: CommandHistory = new CommandHistory();
     addReceiver(receiver: UserService) {
-        this.receiver = receiver;
+      this.receiver = receiver;
     }
     run() {
       const user = new User(1);
@@ -188,7 +188,142 @@
     }
   }
 
+  /*
   const controller = new Controller();
   controller.addReceiver(new UserService());
   controller.run();
+  */
+})();
+
+// STATE
+(function () {
+  class DocumentItem {
+    public text: string;
+    public state: DocumentItemState;
+
+    constructor() {
+      this.setState(new DraftDocumentItemState());
+    }
+    getState() {
+      return this.state;
+    }
+
+    setState(state: DocumentItemState) {
+      this.state = state;
+      this.state.setContext(this);
+    }
+
+    publishDoc() {
+      this.state.publish();
+    }
+
+    deleteDoc() {
+      this.state.delete();
+    }
+  }
+
+  abstract class DocumentItemState {
+    public name: string;
+    public item: DocumentItem;
+
+    public setContext(item: DocumentItem) {
+      this.item = item;
+    }
+
+    public abstract publish(): void;
+    public abstract delete(): void;
+  }
+
+  class DraftDocumentItemState extends DocumentItemState {
+    constructor() {
+      super();
+      this.name = 'DraftDocument';
+    }
+
+    public publish(): void {
+      console.log('Draft to Publish');
+      this.item.setState(new PublishDocumentItemState());
+    }
+    public delete(): void {
+      console.log('Draft to Delete');
+    }
+  }
+
+  class PublishDocumentItemState extends DocumentItemState {
+    constructor() {
+      super();
+      this.name = 'PublishDocument';
+    }
+
+    public publish(): void {
+      console.log('it is already Published');
+    }
+    public delete(): void {
+      console.log('Publish to Delete');
+      this.item.setState(new DraftDocumentItemState());
+    }
+  }
+
+  /*
+  const doc = new DocumentItem();
+  doc.text = 'New Post';
+  console.log(doc.getState());
+  doc.publishDoc();
+  console.log(doc.getState());
+  doc.deleteDoc();
+  console.log(doc.getState());
+  */
+})();
+
+// STRATEGY
+(function () {
+  class User {
+    githubToken: string;
+    jwtToken: string;
+  }
+
+  interface AuthStrategy {
+    auth(user: User): boolean;
+  }
+
+  class Auth {
+    constructor(private strategy: AuthStrategy) {}
+
+    setSTrategy(strategy: AuthStrategy) {
+      this.strategy = strategy;
+    }
+
+    public authUser(user: User): boolean {
+      return this.strategy.auth(user);
+    }
+  }
+
+  class JWTStrategy implements AuthStrategy {
+    auth(user: User): boolean {
+      if (user.jwtToken) {
+        return true;
+      }
+      return false;
+    }
+  }
+
+  class GitHubStrategy implements AuthStrategy {
+    auth(user: User): boolean {
+      if (user.githubToken) {
+        return true;
+      }
+      return false;
+    }
+  }
+
+  /*
+  const user = new User();
+  user.jwtToken = 'jwt';
+  const auth = new Auth(new JWTStrategy());
+  console.log(auth.authUser(user));
+  auth.setSTrategy(new GitHubStrategy());
+  console.log(auth.authUser(user));
+  user.githubToken = 'github';
+  console.log(auth.authUser(user));
+  */
 })();
