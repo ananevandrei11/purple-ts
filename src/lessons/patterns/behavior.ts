@@ -412,3 +412,120 @@
   console.log(iterator.index());
   */
 })();
+
+// TEMPLATE
+(function () {
+  class Form {
+    constructor(public name: string) {}
+  }
+
+  abstract class SaveForm<T> {
+    public save(form: Form) {
+      const res = this.fill(form);
+      this.log(res);
+      this.send(res);
+    }
+    protected abstract fill(form: Form): T;
+    protected log(data: T): void {
+      console.log(data);
+    }
+    protected abstract send(data: T): void;
+  }
+
+  class FirstAPI extends SaveForm<string> {
+    protected fill(form: Form): string {
+      return form.name;
+    }
+    protected send(data: string): void {
+      console.log(`Send ${data}`);
+    }
+  }
+
+  class SecondAPI extends SaveForm<{ fio: string }> {
+    protected fill(form: Form): { fio: string } {
+      return { fio: form.name };
+    }
+    protected send(data: { fio: string }): void {
+      console.log(`Send FIO: ${data.fio}`);
+    }
+  }
+
+  /*
+  const form1 = new FirstAPI();
+  form1.save(new Form('Vasya'));
+  const form2 = new SecondAPI();
+  form2.save(new Form('Ben'));
+  */
+})();
+
+// OBSERVER
+(function () {
+  interface Observer {
+    update(sub: Subject): void;
+  }
+
+  interface Subject {
+    attach(observer: Observer): void;
+    detach(observer: Observer): void;
+    notify(): void;
+  }
+
+  class Lead {
+    constructor(public name: string, public phone: string) {}
+  }
+
+  class NewLead implements Subject {
+    private observers: Observer[] = [];
+    public state: Lead;
+
+    attach(observer: Observer): void {
+      if (this.observers.includes(observer)) {
+        return;
+      }
+      this.observers.push(observer);
+    }
+    detach(observer: Observer): void {
+      const observerIndex = this.observers.indexOf(observer);
+      if (observerIndex === -1) {
+        return;
+      }
+      this.observers.splice(observerIndex, 1);
+    }
+    notify(): void {
+      if (this.observers.length === 0) {
+        console.log('observer not found');
+      }
+      for (const observer of this.observers) {
+        observer.update(this);
+      }
+    }
+  }
+
+  class NotifyService implements Observer {
+    update(sub: Subject): void {
+      console.log('NotifyService is received message');
+      console.log(sub);
+    }
+  }
+
+  class LeadService implements Observer {
+    update(sub: Subject): void {
+      console.log('LeadService is received message');
+      console.log(sub);
+    }
+  }
+
+  /*
+  const subject = new NewLead();
+  subject.state = new Lead('Andrei', '123456789');
+  const subscribe1 = new NotifyService();
+  const subscribe2 = new LeadService();
+  subject.attach(subscribe1);
+  subject.attach(subscribe2);
+  subject.notify();
+  subject.detach(subscribe1);
+  subject.notify();
+  subject.detach(subscribe2);
+  subject.notify();
+  */
+})();
